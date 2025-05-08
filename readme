@@ -1,0 +1,63 @@
+[1] INPUT  
+   └─ RGB Image (e.g., 224 x 224 x 3)
+
+      │
+      ▼
+
+[2] STEM LAYER  
+   ├─ Conv2D (3 → 16 channels, kernel=3x3, stride=1, padding=1)  
+   ├─ BatchNorm2D  
+   └─ ReLU  
+   => Output: 224 x 224 x 16
+
+      │
+      ▼
+
+[3] FEATURE BLOCKS  
+
+   ┌── Block 1 ─────────────────────┐
+   │ DepthwiseSeparableConv (16 → 32)  
+   │ MaxPool2D (kernel=2)  
+   └─ Output: 112 x 112 x 32
+
+      │
+      ▼
+
+   ┌── Block 2 ─────────────────────┐
+   │ DepthwiseSeparableConv (32 → 64)  
+   │ MaxPool2D (kernel=2)  
+   └─ Output: 56 x 56 x 64
+
+      │
+      ▼
+
+   ┌── Block 3 ─────────────────────┐
+   │ DepthwiseSeparableConv (64 → 128)  
+   │ SEBlock (channel-wise attention)  
+   │ MaxPool2D (kernel=2)  
+   └─ Output: 28 x 28 x 128
+
+      │
+      ▼
+
+   ┌── Block 4 ─────────────────────┐
+   │ DepthwiseSeparableConv (128 → 128)  
+   │ MaxPool2D (kernel=2)  
+   └─ Output: 14 x 14 x 128
+
+      │
+      ▼
+
+[4] CLASSIFICATION HEAD  
+   ├─ AdaptiveAvgPool2D → Output: 1 x 1 x 128  
+   ├─ Flatten → Output: 128  
+   ├─ Linear(128 → 64)  
+   ├─ ReLU  
+   ├─ Dropout(0.3)  
+   └─ Linear(64 → 1)
+
+      │
+      ▼
+
+[5] OUTPUT  
+   └─ Tumor Probability Score (e.g., 0 = no tumor, 1 = tumor)
